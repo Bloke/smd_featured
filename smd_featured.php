@@ -1264,7 +1264,7 @@ h2. Features
 
 h2. Installation / Uninstallation
 
-p(important). Requires Textpattern 4.5.0+
+p(important). Requires Textpattern 4.6.0+
 
 Download the plugin from either "textpattern.org":http://textpattern.org/plugins/1174/smd_featured, or the "software page":http://stefdawson.com/sw, paste the code into the TXP Admin -> Plugins pane, install and enable the plugin. Visit the "forum thread":http://forum.textpattern.com/viewtopic.php?id=33938 for more info or to report on the success or otherwise of the plugin.
 
