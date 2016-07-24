@@ -108,7 +108,7 @@ if (txpinterface === 'admin') {
     global $smd_featured_event, $smd_featured_pref_privs;
 
     $smd_featured_event = 'smd_featured';
-    $smd_featured_privs = get_pref('smd_featured_privs', '1,2');
+    $smd_featured_privs = get_pref('smd_featured_privs', '1, 2');
     $smd_featured_pref_privs = array(
         'all' => array(
             'smd_featured_display',
@@ -127,6 +127,14 @@ if (txpinterface === 'admin') {
     register_callback('smd_featured_manage', $smd_featured_event);
     register_callback('smd_featured_welcome', 'plugin_lifecycle.smd_featured');
     register_callback('smd_featured_inject_css', 'admin_side', 'head_end');
+} elseif (txpinterface === 'public') {
+    if (class_exists('\Textpattern\Tag\Registry')) {
+        Txp::get('\Textpattern\Tag\Registry')
+            ->register('smd_featured')
+            ->register('smd_featured_info')
+            ->register('smd_unfeatured')
+            ->register('smd_if_featured');
+    }
 }
 
 if (!defined('SMD_FEAT')) {
@@ -1033,7 +1041,7 @@ function smd_featured($atts, $thing)
                 $where .= " AND Posted <= now()";
         }
         if (!$prefs['publish_expired_articles']) {
-            $where .= " AND (now() <= Expires OR Expires = ".NULLDATETIME.")";
+            $where .= " AND (now() <= Expires OR Expires IS NULL)";
         }
     }
 
@@ -1135,7 +1143,7 @@ function smd_unfeatured($atts, $thing)
                 $where .= " AND Posted <= now()";
         }
         if (!$prefs['publish_expired_articles']) {
-            $where .= " AND (now() <= Expires OR Expires = ".NULLDATETIME.")";
+            $where .= " AND (now() <= Expires OR Expires IS NULL)";
         }
     }
 
