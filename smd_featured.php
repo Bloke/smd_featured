@@ -17,10 +17,10 @@ $plugin['name'] = 'smd_featured';
 // 1 = Plugin help is in raw HTML.  Not recommended.
 # $plugin['allow_html_help'] = 1;
 
-$plugin['version'] = '0.50';
+$plugin['version'] = '0.60';
 $plugin['author'] = 'Stef Dawson';
 $plugin['author_uri'] = 'http://stefdawson.com/';
-$plugin['description'] = 'Quickly label and display featured articles for your site\'s home / landing pages';
+$plugin['description'] = 'Quickly label and display featured articles for your home / landing pages';
 
 // Plugin load order:
 // The default value of 5 would fit most plugins, while for instance comment
@@ -77,7 +77,7 @@ smd_feat_pref_display => Display:
 smd_feat_pref_sort => Sort by: 
 smd_feat_saved => Article info updated
 smd_feat_search_live => Article live search
-smd_feat_search_stabdard => Article search
+smd_feat_search_standard => Article search
 smd_feat_section_list => Articles from sections: 
 smd_feat_show_ui => Permit entry of:
 smd_feat_tab_name => Featured articles
@@ -104,7 +104,7 @@ if (!defined('txpinterface'))
  * @author Stef Dawson
  * @link   http://stefdawson.com/
  */
-if (@txpinterface == 'admin') {
+if (txpinterface === 'admin') {
     global $smd_featured_event, $smd_featured_pref_privs;
 
     $smd_featured_event = 'smd_featured';
@@ -138,7 +138,8 @@ if (!defined('SMD_FEAT')) {
 // **********
 // -------------------------------------------------------------
 // CSS definitions: hopefully kind to themers
-function smd_featured_get_style_rules() {
+function smd_featured_get_style_rules()
+{
     $sizes = do_list(get_pref('smd_featured_box_size', '150x40', 1), 'x');
     $sizes[0] = (isset($sizes[0]) && is_numeric($sizes[0])) ? $sizes[0] : '150';
     $sizes[1] = (isset($sizes[1]) && is_numeric($sizes[1])) ? $sizes[1] : '40';
@@ -154,7 +155,8 @@ function smd_featured_get_style_rules() {
 .smd_hidden { display:none; }
 .smd_featured { background-color:#e2dfce; position:relative; }
 .smd_featured a { font-weight: bold; color:#80551e; }
-#smd_featured_cpanel form { border:1px dashed #999; margin:4px; }
+#smd_featured_cpanel form { border:1px solid #ccc; margin: 0.5rem 0; padding: 1rem; }
+.smd_featured_subpanel h4 { margin: 0 0 0.5rem }
 .smd_featured_table { margin:0 auto; text-align:center; }
 .smd_clear { clear:both; }
 .smd_featured_table div { display:inline-block; width:{bw}px; height:{bh}px; border:1px solid #aaa; padding:0.4em; overflow:hidden; }
@@ -169,10 +171,11 @@ function smd_featured_get_style_rules() {
 }
 
 // -------------------------------------------------------------
-function smd_featured_inject_css($evt, $stp) {
+function smd_featured_inject_css($evt, $stp)
+{
     global $smd_featured_event, $event;
 
-    if ($event == $smd_featured_event) {
+    if ($event === $smd_featured_event) {
         $smd_featured_styles = smd_featured_get_style_rules();
         echo '<style type="text/css">', $smd_featured_styles['common'], '</style>';
     }
@@ -180,7 +183,8 @@ function smd_featured_inject_css($evt, $stp) {
     return;
 }
 // ------------------------
-function smd_featured_manage($evt, $stp) {
+function smd_featured_manage($evt, $stp)
+{
     if ($stp == 'save_pane_state') {
         smd_featured_save_pane_state();
     } else {
@@ -199,7 +203,8 @@ function smd_featured_manage($evt, $stp) {
 }
 
 // ------------------------
-function smd_featured_welcome($evt, $stp) {
+function smd_featured_welcome($evt, $stp)
+{
     $msg = '';
     switch ($stp) {
         case 'installed':
@@ -216,13 +221,15 @@ function smd_featured_welcome($evt, $stp) {
 }
 
 // ------------------------
-function smd_featured_list($msg='') {
+function smd_featured_list($msg = '')
+{
     global $smd_featured_event, $smd_featured_list_pageby, $txp_user, $smd_featured_pref_privs;
 
     pagetop(gTxt('smd_feat_tab_name'), $msg);
     extract(gpsa(array('smd_feat_id', 'smd_feat_label', 'smd_feat_searchkeep', 'smd_feat_filtkeep', 'page')));
 
     if (smd_featured_table_exist(1)) {
+        smd_featured_table_upgrade();
         $featlist = safe_rows('*', SMD_FEAT, '1=1');
         $featlist = empty($featlist) ? array() : $featlist;
         $editname = $feat_label = $feat_title = $feat_desc = '';
@@ -268,7 +275,7 @@ function smd_featured_list($msg='') {
         $display = get_pref('smd_featured_display', 'all', 1);
 
         // Generate the extra criteria if in list view
-        if ($display=='paginated') {
+        if ($display === 'paginated') {
             if ($smd_feat_searchkeep) {
                 $items = do_list($smd_feat_searchkeep, ' ');
                 $itlist = array();
@@ -295,6 +302,7 @@ function smd_featured_list($msg='') {
 
         $rs = safe_rows('*', 'textpattern', $where. $orderqry . " limit $offset, $limit");
         $out = array();
+
         foreach ($rs as $row) {
             $ftype = isset($featlist[$row['ID']]['label']) ? $featlist[$row['ID']]['label'] : '';
             $out[] = array($row['ID'], $row['Title'], $ftype);
@@ -346,17 +354,8 @@ function smd_featured_list($msg='') {
 
         echo n.'<div id="smd_feat_loading"><div id="smd_feat_loading_holder">Loading...</div></div>';
         echo n.'<div id="smd_container" class="txp-container" style="display:none;">';
-        echo n.'<div id="smd_featured_control_panel" class="txp-control-panel"><h3 class="txp-summary lever'.(get_pref('pane_smd_featured_cpanel_visible') ? ' expanded' : '').'"><a href="#smd_featured_cpanel">'.gTxt('smd_feat_control_panel').'</a></h3>';
+        echo n.'<div id="smd_featured_control_panel"><span class="txp-summary lever'.(get_pref('pane_smd_featured_cpanel_visible') ? ' expanded' : '').'"><a href="#smd_featured_cpanel">'.gTxt('smd_feat_control_panel').'</a></span>';
         echo n.'<div id="smd_featured_cpanel" class="toggle" style="display:'.(get_pref('pane_smd_featured_cpanel_visible') ? 'block' : 'none').'">';
-
-        echo n.'<form id="smd_feat_filtform" action="index.php" method="post" onsubmit="smd_featured_editkeep(0);return false;">';
-        echo n.'<div id="smd_featured_filt" class="smd_featured_subpanel"><h4>'.gTxt((($display=='all') ? 'smd_feat_search_live' : 'smd_feat_search_standard')).'</h4>';
-        echo n.'<label for="smd_feat_search">'.gTxt('smd_feat_by_name').'</label>'.n.fInput('text', 'smd_feat_search', $smd_feat_searchkeep, '', '', '', '', '', 'smd_feat_search').
-            (($ftypes) ? n.'<div id="smd_featured_bylabel">'.gTxt('smd_feat_by_label').n.selectInput('smd_feat_filt', $ftypes, $smd_feat_filtkeep, 1, '', 'smd_feat_filt').'</div>' : '');
-        echo ($display=='paginated') ? n.fInput('submit', '', gTxt('go'), 'smd_featured_save', '', 'return smd_featured_editkeep(0);') : '';
-        echo n.eInput($smd_featured_event).n.sInput('smd_featured_list');
-        echo n.'</div>';
-        echo n.'</form>';
 
         echo n.'<form id="smd_feat_prefs" action="index.php" method="post">';
         echo n.'<div id="smd_featured_prefs" class="smd_featured_subpanel"><h4>'.gTxt('smd_feat_prefs').'</h4>';
@@ -403,6 +402,15 @@ function smd_featured_list($msg='') {
 
         echo n.eInput($smd_featured_event).sInput('smd_featured_prefsave');
         echo n.fInput('submit', '', gTxt('save'), 'smd_featured_save');
+        echo n.'</div>';
+        echo n.'</form>';
+
+        echo n.'<form id="smd_feat_filtform" action="index.php" method="post" onsubmit="smd_featured_editkeep(0);return false;">';
+        echo n.'<div id="smd_featured_filt" class="smd_featured_subpanel"><h4>'.gTxt((($display=='all') ? 'smd_feat_search_live' : 'smd_feat_search_standard')).'</h4>';
+        echo n.'<label for="smd_feat_search">'.gTxt('smd_feat_by_name').'</label>'.n.fInput('text', 'smd_feat_search', $smd_feat_searchkeep, '', '', '', '', '', 'smd_feat_search').
+            (($ftypes) ? n.'<div id="smd_featured_bylabel">'.gTxt('smd_feat_by_label').n.selectInput('smd_feat_filt', $ftypes, $smd_feat_filtkeep, 1, '', 'smd_feat_filt').'</div>' : '');
+        echo ($display=='paginated') ? n.fInput('submit', '', gTxt('go'), 'smd_featured_save', '', 'return smd_featured_editkeep(0);') : '';
+        echo n.eInput($smd_featured_event).n.sInput('smd_featured_list');
         echo n.'</div>';
         echo n.'</form>';
 
@@ -659,7 +667,8 @@ EOJS;
 }
 
 // -------------------------------------------------------------
-function smd_featured_change_pageby() {
+function smd_featured_change_pageby()
+{
     global $smd_featured_event;
 
     event_change_pageby($smd_featured_event);
@@ -668,7 +677,8 @@ function smd_featured_change_pageby() {
 
 // ------------------------
 // Update the passed record in the featured table
-function smd_featured_save() {
+function smd_featured_save()
+{
     global $smd_featured_event;
 
     extract(gpsa(array('smd_feat_id', 'smd_feat_label', 'smd_feat_title', 'smd_feat_desc', 'smd_feat_position')));
@@ -704,7 +714,8 @@ function smd_featured_save() {
 
 // ------------------------
 // Create an empty entry in the featured table or destroy it
-function smd_featured_tagit() {
+function smd_featured_tagit()
+{
     global $smd_featured_event;
     extract(doSlash(gpsa(array('smd_feat_id', 'smd_feat_action'))));
 
@@ -719,7 +730,8 @@ function smd_featured_tagit() {
 
 // -------------------------------------------------------------
 // Stash the position against the given featured item
-function smd_featured_store_pos() {
+function smd_featured_store_pos()
+{
     $id = gps('smd_feat_id');
     assert_int($id);
 
@@ -734,7 +746,8 @@ function smd_featured_store_pos() {
 }
 
 // -------------------------------------------------------------
-function smd_featured_prefsave() {
+function smd_featured_prefsave()
+{
     global $smd_featured_pref_privs, $txp_user;
 
     // Three different types of pref can be stored: see below for details
@@ -809,7 +822,8 @@ function smd_featured_prefsave() {
 }
 
 // -------------------------------------------------------------
-function smd_featured_save_pane_state() {
+function smd_featured_save_pane_state()
+{
     $panes = array('smd_featured_cpanel');
     $pane = gps('pane');
     if (in_array($pane, $panes))
@@ -823,24 +837,26 @@ function smd_featured_save_pane_state() {
 
 // ------------------------
 // Add featured table if not already installed
-function smd_featured_table_install($showpane='1') {
+function smd_featured_table_install($showpane = '1')
+{
     $GLOBALS['txp_err_count'] = 0;
     $ret = '';
     $sql = array();
     $sql[] = "CREATE TABLE IF NOT EXISTS `".PFX.SMD_FEAT."` (
-        `feat_id` int(8) NOT NULL default '0',
-        `label` varchar(32) NULL default '',
-        `feat_position` varchar(16) NULL default '',
-        `feat_title` varchar(255) NULL default '',
-        `feat_title_html` varchar(255) NULL default '',
-        `description` text NULL default '',
-        `desc_html` text NULL default '',
+        `feat_id`         int(8)       NOT NULL default 0,
+        `label`           varchar(32)  NULL     default '',
+        `feat_position`   varchar(16)  NULL     default '',
+        `feat_title`      varchar(255) NULL     default '',
+        `feat_title_html` varchar(255) NULL     default '',
+        `description`     varchar(255) NULL     default '',
+        `desc_html`       varchar(255) NULL     default '',
         PRIMARY KEY (`feat_id`)
     ) ENGINE=MyISAM";
 
-    if(gps('debug')) {
+    if (gps('debug')) {
         dmp($sql);
     }
+
     foreach ($sql as $qry) {
         $ret = safe_query($qry);
         if ($ret===false) {
@@ -848,21 +864,6 @@ function smd_featured_table_install($showpane='1') {
             echo "<b>".$GLOBALS['txp_err_count'].".</b> ".mysql_error()."<br />\n";
             echo "<!--\n $qry \n-->\n";
         }
-    }
-
-    // Handle upgrades from previous versions
-    $cols = getThings('describe `'.PFX.SMD_FEAT.'`');
-    if (!in_array('feat_id', $cols)) {
-        safe_alter(SMD_FEAT, "CHANGE `id` `feat_id` int( 8 ) NOT NULL DEFAULT '0'");
-    }
-    if (!in_array('feat_title', $cols)) {
-        safe_alter(SMD_FEAT, "ADD `feat_title` varchar( 255 ) NULL DEFAULT '' AFTER `label`");
-    }
-    if (!in_array('feat_title_html', $cols)) {
-        safe_alter(SMD_FEAT, "ADD `feat_title_html` varchar( 255 ) NULL DEFAULT '' AFTER `feat_title`");
-    }
-    if (!in_array('feat_position', $cols)) {
-        safe_alter(SMD_FEAT, "ADD `feat_position` varchar ( 16 ) NULL DEFAULT '' AFTER `label`");
     }
 
     // Spit out results
@@ -881,7 +882,8 @@ function smd_featured_table_install($showpane='1') {
 
 // ------------------------
 // Drop table if in database
-function smd_featured_table_remove() {
+function smd_featured_table_remove()
+{
     $ret = '';
     $sql = array();
     $GLOBALS['txp_err_count'] = 0;
@@ -908,10 +910,51 @@ function smd_featured_table_remove() {
 }
 
 // ------------------------
-function smd_featured_table_exist($all='') {
+// Handle upgrades from previous versions.
+function smd_featured_table_upgrade()
+{
+    global $DB;
+
+    $varCharSize = (version_compare($DB->version, '5.0.3', '>=') ? '16384' : '255');
+    $colInfo = getRows('describe `'.PFX.SMD_FEAT.'`');
+    $cols = array();
+    $descTypes = array();
+
+    foreach ($colInfo as $row) {
+        $cols[] = $row['Field'];
+
+        if (in_array($row['Field'], array('description', 'desc_html'))) {
+            $descTypes[$row['Field']] = $row['Type'];
+        }
+    }
+
+    if (!in_array('feat_id', $cols)) {
+        safe_alter(SMD_FEAT, "CHANGE `id` `feat_id` int( 8 ) NOT NULL DEFAULT '0'");
+    }
+    if (!in_array('feat_title', $cols)) {
+        safe_alter(SMD_FEAT, "ADD `feat_title` varchar( 255 ) NULL DEFAULT '' AFTER `label`");
+    }
+    if (!in_array('feat_title_html', $cols)) {
+        safe_alter(SMD_FEAT, "ADD `feat_title_html` varchar( 255 ) NULL DEFAULT '' AFTER `feat_title`");
+    }
+    if (!in_array('feat_position', $cols)) {
+        safe_alter(SMD_FEAT, "ADD `feat_position` varchar ( 16 ) NULL DEFAULT '' AFTER `label`");
+    }
+    if ($descTypes['description'] === 'text') {
+        safe_alter(SMD_FEAT, "MODIFY `description` varchar (" . $varCharSize . ") NULL");
+    }
+    if ($descTypes['desc_html'] === 'text') {
+        safe_alter(SMD_FEAT, "MODIFY `desc_html` varchar (" . $varCharSize . ") NULL");
+    }
+}
+
+// ------------------------
+function smd_featured_table_exist($all = '')
+{
     if ($all) {
         $tbls = array(SMD_FEAT => 7);
         $out = count($tbls);
+
         foreach ($tbls as $tbl => $cols) {
             if (gps('debug')) {
                 echo "++ TABLE ".$tbl." HAS ".count(@safe_show('columns', $tbl))." COLUMNS; REQUIRES ".$cols." ++".br;
@@ -920,12 +963,12 @@ function smd_featured_table_exist($all='') {
                 $out--;
             }
         }
-        return ($out===0) ? 1 : 0;
+        return ($out === 0) ? 1 : 0;
     } else {
         if (gps('debug')) {
             echo "++ TABLE ".SMD_FEAT." HAS ".count(@safe_show('columns', SMD_FEAT))." COLUMNS;";
         }
-        return(@safe_show('columns', SMD_FEAT));
+        return (@safe_show('columns', SMD_FEAT));
     }
 }
 
@@ -933,7 +976,8 @@ function smd_featured_table_exist($all='') {
 // PUBLIC SIDE TAGS
 // ****************
 // ------------------------
-function smd_featured($atts, $thing) {
+function smd_featured($atts, $thing)
+{
     global $smd_featured_info, $smd_prior_featured, $prefs;
 
     extract(lAtts(array(
@@ -1068,7 +1112,8 @@ function smd_featured($atts, $thing) {
 }
 
 // ------------------------
-function smd_unfeatured($atts, $thing) {
+function smd_unfeatured($atts, $thing)
+{
     global $smd_prior_featured, $thispage, $pretext;
 
     $time = (isset($atts['time'])) ? $atts['time'] : '';
@@ -1151,7 +1196,8 @@ function smd_unfeatured($atts, $thing) {
 }
 
 // ------------------------
-function smd_featured_info($atts) {
+function smd_featured_info($atts)
+{
     global $smd_featured_info;
 
     extract(lAtts(array(
@@ -1162,7 +1208,8 @@ function smd_featured_info($atts) {
 }
 
 // ------------------------
-function smd_if_featured($atts, $thing) {
+function smd_if_featured($atts, $thing)
+{
     global $smd_featured_info, $thisarticle;
 
     extract(lAtts(array(
