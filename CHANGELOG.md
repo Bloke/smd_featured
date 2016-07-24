@@ -4,9 +4,12 @@
 
 * Textpattern 4.6 compatible.
 * Fixed table creation MySQL syntax.
-* Downgraded `description` and `desc_html` to large varchars for performance reasons:
-** `text` columns aren't memory cacheable.
-** Users of MySQL >= 5.0.3 won't notice any difference for all practical purposes.
+* Downgraded `description` and `desc_html` to large varchars for performance reasons.
+
+   `text` columns aren't memory cacheable.
+
+   Users of MySQL >= 5.0.3 won't notice any difference for all practical purposes.
+
 * Styling tweaks.
 * Typo.
 
