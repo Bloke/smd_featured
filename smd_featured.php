@@ -698,17 +698,23 @@ function smd_featured_save()
     $smd_feat_position = doSlash($smd_feat_position);
 
     if (smd_featured_table_exist()) {
-        @include_once txpath.'/lib/classTextile.php';
         @include_once txpath.'/publish.php';
 
         $textileonoff = explode(',', get_pref('smd_featured_textile', ''));
         $txt_ttl = in_array('title', $textileonoff);
         $txt_desc = in_array('desc', $textileonoff);
 
-        if (class_exists('Textile')) {
-            $textile = new Textile();
-            $smd_feat_titletile = doSlash((($txt_ttl) ? $textile->TextileThis(parse($smd_feat_title)) : parse($smd_feat_title)));
-            $smd_feat_desctile = doSlash((($txt_desc) ? $textile->TextileThis(parse($smd_feat_desc)) : parse($smd_feat_desc)));
+        if (version_compare(txp_version, '4.6', '<')) {
+            @include_once txpath.'/lib/classTextile.php';
+            if (class_exists('Textile')) {
+                $textile = new Textile();
+                $smd_feat_titletile = doSlash((($txt_ttl) ? $textile->TextileThis(parse($smd_feat_title)) : parse($smd_feat_title)));
+                $smd_feat_desctile = doSlash((($txt_desc) ? $textile->TextileThis(parse($smd_feat_desc)) : parse($smd_feat_desc)));
+            }
+        } else {
+            $textile = new \Textpattern\Textile\Parser();
+            $smd_feat_titletile = doSlash((($txt_ttl) ? $textile->parse(parse($smd_feat_title)) : parse($smd_feat_title)));
+            $smd_feat_desctile = doSlash((($txt_desc) ? $textile->parse(parse($smd_feat_desc)) : parse($smd_feat_desc)));
         }
 
         $smd_feat_title = doSlash($smd_feat_title);
