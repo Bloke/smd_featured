@@ -55,6 +55,9 @@ $plugin['flags'] = '2';
 // abc_string_name => Localized String
 
 $plugin['textpack'] = <<<EOT
+#@language en, en-gb, en-us
+#@admin-side
+smd_feat_tab_name => Featured articles
 #@smd_feat
 smd_feat_by_label => By label:
 smd_feat_by_name => By name:
@@ -80,7 +83,6 @@ smd_feat_search_live => Article live search
 smd_feat_search_standard => Article search
 smd_feat_section_list => Articles from sections: 
 smd_feat_show_ui => Permit entry of:
-smd_feat_tab_name => Featured articles
 smd_feat_tbl_installed => Table installed
 smd_feat_tbl_install_lbl => Install table
 smd_feat_tbl_not_installed => Table not installed
