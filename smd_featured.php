@@ -17,9 +17,9 @@ $plugin['name'] = 'smd_featured';
 // 1 = Plugin help is in raw HTML.  Not recommended.
 # $plugin['allow_html_help'] = 1;
 
-$plugin['version'] = '0.60';
+$plugin['version'] = '0.7.0';
 $plugin['author'] = 'Stef Dawson';
-$plugin['author_uri'] = 'http://stefdawson.com/';
+$plugin['author_uri'] = 'https://stefdawson.com/';
 $plugin['description'] = 'Quickly label and display featured articles for your home / landing pages';
 
 // Plugin load order:
@@ -104,7 +104,7 @@ if (!defined('txpinterface'))
  * A Textpattern CMS plugin for pimping your articles on landing pages.
  *
  * @author Stef Dawson
- * @link   http://stefdawson.com/
+ * @link   https://stefdawson.com/
  */
 if (txpinterface === 'admin') {
     global $smd_featured_event, $smd_featured_pref_privs;
@@ -1282,7 +1282,7 @@ h2. Installation / Uninstallation
 
 p(important). Requires Textpattern 4.6.0+
 
-Download the plugin from either "textpattern.org":http://textpattern.org/plugins/1174/smd_featured, or the "software page":http://stefdawson.com/sw, paste the code into the TXP Admin -> Plugins pane, install and enable the plugin. Visit the "forum thread":http://forum.textpattern.com/viewtopic.php?id=33938 for more info or to report on the success or otherwise of the plugin.
+Download the plugin from either "textpattern.org":http://textpattern.org/plugins/1174/smd_featured, or the "software page":https://stefdawson.com/sw, paste the code into the TXP Admin -> Plugins pane, install and enable the plugin. Visit the "forum thread":https://forum.textpattern.com/viewtopic.php?id=33938 for more info or to report on the success or otherwise of the plugin.
 
 When you install the plugin, the necessary table is automatically installed for you. There's currently no facility for removing it during plugin operation, but it will be deleted if the plugin is deleted from your system. Note that if you put the plugin in the cache dir and therefore don't go though the normal installation procedure, the table is *not* installed automatically; visit the _Content->Featured articles_ tab and click the _Install table_ button.
 
@@ -1489,7 +1489,7 @@ bc(block). <txp:smd_if_featured label="Featured, Special">
 
 h2. Author / Credits
 
-"Stef Dawson":http://stefdawson.com/contact
+"Stef Dawson":https://stefdawson.com/contact
 
 # --- END PLUGIN HELP ---
 -->

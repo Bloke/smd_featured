@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 2019-xx-yy
+
+* Textpattern 4.7 compatible.
+* Update language strings for Txp 4.7.
+
 ## 0.6.0 2019-11-26
 
 * Textpattern 4.6 compatible.
