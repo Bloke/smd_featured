@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.60 2016-xx-yy
+## 0.6.0 2019-11-26
 
 * Textpattern 4.6 compatible.
 * Fixed table creation MySQL syntax.
